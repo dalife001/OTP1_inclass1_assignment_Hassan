@@ -1,3 +1,11 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-OTP1_inclass1_assignment_Hassan,org.example,Main,29,0,0,0,10,0,2,0,2,0
+OTP1_inclass1_assignment_Hassan,org.example,Main,433,0,48,0,96,0,31,0,7,0
+OTP1_inclass1_assignment_Hassan,org.example,DatabaseTest,16,0,0,0,8,0,2,0,2,0
+OTP1_inclass1_assignment_Hassan,org.example,Main.new ListCell() {...},25,0,4,0,6,0,4,0,2,0
+OTP1_inclass1_assignment_Hassan,org.example,Main.new StringConverter() {...},34,0,6,0,6,0,6,0,3,0
+OTP1_inclass1_assignment_Hassan,org.example,TemperatureUnitDAO,120,0,4,0,30,0,9,0,7,0
+OTP1_inclass1_assignment_Hassan,org.example,TempRecordDAO,54,0,0,0,17,0,3,0,3,0
+OTP1_inclass1_assignment_Hassan,org.example,DBConnection,39,0,8,0,9,0,7,0,3,0
+OTP1_inclass1_assignment_Hassan,org.example,TempRecord,0,54,0,0,0,20,0,8,0,8
+OTP1_inclass1_assignment_Hassan,org.example,TemperatureUnit,0,24,0,0,0,8,0,4,0,4
 OTP1_inclass1_assignment_Hassan,org.example,TemperatureConverter,0,35,0,4,0,5,0,7,0,5

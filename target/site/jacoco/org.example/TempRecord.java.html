@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TempRecord.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">OTP1_inclass1_assignment_Hassan</a> &gt; <a href="index.source.html" class="el_package">org.example</a> &gt; <span class="el_source">TempRecord.java</span></div><h1>TempRecord.java</h1><pre class="source lang-java linenums">package org.example;
+
+import java.time.LocalDateTime;
+
+public class TempRecord {
+
+    private int id;
+    private double inputValue;
+    private double outputValue;
+    private int fromUnitId;
+    private int toUnitId;
+    private LocalDateTime createdAt;
+
+    public TempRecord(
+            int id,
+            double inputValue,
+            double outputValue,
+            int fromUnitId,
+            int toUnitId,
+<span class="fc" id="L20">            LocalDateTime createdAt) {</span>
+
+<span class="fc" id="L22">        this.id = id;</span>
+<span class="fc" id="L23">        this.inputValue = inputValue;</span>
+<span class="fc" id="L24">        this.outputValue = outputValue;</span>
+<span class="fc" id="L25">        this.fromUnitId = fromUnitId;</span>
+<span class="fc" id="L26">        this.toUnitId = toUnitId;</span>
+<span class="fc" id="L27">        this.createdAt = createdAt;</span>
+<span class="fc" id="L28">    }</span>
+
+    public TempRecord(
+            double inputValue,
+            double outputValue,
+            int fromUnitId,
+<span class="fc" id="L34">            int toUnitId) {</span>
+
+<span class="fc" id="L36">        this.inputValue = inputValue;</span>
+<span class="fc" id="L37">        this.outputValue = outputValue;</span>
+<span class="fc" id="L38">        this.fromUnitId = fromUnitId;</span>
+<span class="fc" id="L39">        this.toUnitId = toUnitId;</span>
+<span class="fc" id="L40">    }</span>
+
+    public int getId() {
+<span class="fc" id="L43">        return id;</span>
+    }
+
+    public double getInputValue() {
+<span class="fc" id="L47">        return inputValue;</span>
+    }
+
+    public double getOutputValue() {
+<span class="fc" id="L51">        return outputValue;</span>
+    }
+
+    public int getFromUnitId() {
+<span class="fc" id="L55">        return fromUnitId;</span>
+    }
+
+    public int getToUnitId() {
+<span class="fc" id="L59">        return toUnitId;</span>
+    }
+
+    public LocalDateTime getCreatedAt() {
+<span class="fc" id="L63">        return createdAt;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
