@@ -12,119 +12,127 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
-<span class="nc" id="L17">public class Main extends Application {</span>
+<span class="nc" id="L22">public class Main extends Application {</span>
 
-<span class="nc" id="L19">    private final TemperatureConverter converter = new TemperatureConverter();</span>
-<span class="nc" id="L20">    private final TemperatureUnitDAO unitDAO = new TemperatureUnitDAO();</span>
-<span class="nc" id="L21">    private final TempRecordDAO recordDAO = new TempRecordDAO();</span>
+    private static final String BUNDLE_NAME = &quot;MessagesBundle&quot;;
+<span class="nc" id="L25">    private static ResourceBundle messages = ResourceBundle.getBundle(BUNDLE_NAME, Locale.US);</span>
+<span class="nc" id="L26">    private final TemperatureConverter converter = new TemperatureConverter();</span>
+<span class="nc" id="L27">    private final TemperatureUnitDAO unitDAO = new TemperatureUnitDAO();</span>
+<span class="nc" id="L28">    private final TempRecordDAO recordDAO = new TempRecordDAO();</span>
 
     @Override
     public void start(Stage stage) {
 
-<span class="nc" id="L26">        Label title = new Label(&quot;Temperature Converter&quot;);</span>
+<span class="nc" id="L33">        Label title = new Label(message(&quot;title&quot;));</span>
 
         // Temperature input
-<span class="nc" id="L29">        Label inputLabel = new Label(&quot;Temperature:&quot;);</span>
-<span class="nc" id="L30">        TextField inputField = new TextField();</span>
-<span class="nc" id="L31">        inputField.setPromptText(&quot;Enter temperature&quot;);</span>
+<span class="nc" id="L36">        Label inputLabel = new Label(message(&quot;temperature&quot;));</span>
+<span class="nc" id="L37">        TextField inputField = new TextField();</span>
+<span class="nc" id="L38">        inputField.setPromptText(message(&quot;enterTemperature&quot;));</span>
 
         // From unit
-<span class="nc" id="L34">        Label fromLabel = new Label(&quot;From:&quot;);</span>
-<span class="nc" id="L35">        ComboBox&lt;TemperatureUnit&gt; fromUnit = new ComboBox&lt;&gt;();</span>
-<span class="nc" id="L36">        fromUnit.setPrefWidth(250);</span>
+<span class="nc" id="L41">        Label fromLabel = new Label(message(&quot;from&quot;));</span>
+<span class="nc" id="L42">        ComboBox&lt;TemperatureUnit&gt; fromUnit = new ComboBox&lt;&gt;();</span>
+<span class="nc" id="L43">        fromUnit.setPrefWidth(250);</span>
 
         // To unit
-<span class="nc" id="L39">        Label toLabel = new Label(&quot;To:&quot;);</span>
-<span class="nc" id="L40">        ComboBox&lt;TemperatureUnit&gt; toUnit = new ComboBox&lt;&gt;();</span>
-<span class="nc" id="L41">        toUnit.setPrefWidth(250);</span>
+<span class="nc" id="L46">        Label toLabel = new Label(message(&quot;to&quot;));</span>
+<span class="nc" id="L47">        ComboBox&lt;TemperatureUnit&gt; toUnit = new ComboBox&lt;&gt;();</span>
+<span class="nc" id="L48">        toUnit.setPrefWidth(250);</span>
 
         // Configure ComboBox display strings (shows Name and Symbol)
-<span class="nc" id="L44">        configureComboBox(fromUnit);</span>
-<span class="nc" id="L45">        configureComboBox(toUnit);</span>
+<span class="nc" id="L51">        configureComboBox(fromUnit);</span>
+<span class="nc" id="L52">        configureComboBox(toUnit);</span>
 
         // Load units from Database
-<span class="nc" id="L48">        boolean databaseAvailable = true;</span>
+<span class="nc" id="L55">        boolean databaseAvailable = true;</span>
         List&lt;TemperatureUnit&gt; units;
         try {
-<span class="nc" id="L51">            units = unitDAO.getAllUnits();</span>
-<span class="nc" id="L52">        } catch (IllegalStateException exception) {</span>
-<span class="nc" id="L53">            databaseAvailable = false;</span>
-<span class="nc" id="L54">            units = TemperatureUnitDAO.defaultUnitsForTests();</span>
-<span class="nc" id="L55">        }</span>
-<span class="nc bnc" id="L56" title="All 4 branches missed.">        if (units != null &amp;&amp; !units.isEmpty()) {</span>
-<span class="nc" id="L57">            fromUnit.getItems().addAll(units);</span>
-<span class="nc" id="L58">            toUnit.getItems().addAll(units);</span>
+<span class="nc" id="L58">            units = unitDAO.getAllUnits();</span>
+<span class="nc" id="L59">        } catch (IllegalStateException exception) {</span>
+<span class="nc" id="L60">            databaseAvailable = false;</span>
+<span class="nc" id="L61">            units = TemperatureUnitDAO.defaultUnitsForTests();</span>
+<span class="nc" id="L62">        }</span>
+<span class="nc bnc" id="L63" title="All 4 branches missed.">        if (units != null &amp;&amp; !units.isEmpty()) {</span>
+<span class="nc" id="L64">            fromUnit.getItems().addAll(units);</span>
+<span class="nc" id="L65">            toUnit.getItems().addAll(units);</span>
 
-<span class="nc" id="L60">            fromUnit.setValue(units.get(0));</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">            if (units.size() &gt; 1) {</span>
-<span class="nc" id="L62">                toUnit.setValue(units.get(1));</span>
+<span class="nc" id="L67">            fromUnit.setValue(units.get(0));</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (units.size() &gt; 1) {</span>
+<span class="nc" id="L69">                toUnit.setValue(units.get(1));</span>
             } else {
-<span class="nc" id="L64">                toUnit.setValue(units.get(0));</span>
+<span class="nc" id="L71">                toUnit.setValue(units.get(0));</span>
             }
         }
 
         // Convert button
-<span class="nc" id="L69">        Button convertButton = new Button(&quot;Convert&quot;);</span>
+<span class="nc" id="L76">        Button convertButton = new Button(message(&quot;convert&quot;));</span>
 
         // Result
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        Label resultLabel = new Label(databaseAvailable</span>
-<span class="nc" id="L73">                ? &quot;Result:&quot;</span>
-<span class="nc" id="L74">                : &quot;Database unavailable; conversions are not being saved.&quot;);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        Label resultLabel = new Label(databaseAvailable</span>
+<span class="nc" id="L80">                ? message(&quot;result&quot;)</span>
+<span class="nc" id="L81">                : message(&quot;databaseUnavailable&quot;));</span>
 
         // Button action
-<span class="nc" id="L77">        convertButton.setOnAction(event -&gt; {</span>
+<span class="nc" id="L84">        convertButton.setOnAction(event -&gt; {</span>
             try {
-<span class="nc bnc" id="L79" title="All 4 branches missed.">                if (inputField.getText() == null || inputField.getText().trim().isEmpty()) {</span>
-<span class="nc" id="L80">                    resultLabel.setText(&quot;Please enter a temperature value.&quot;);</span>
-<span class="nc" id="L81">                    return;</span>
+<span class="nc bnc" id="L86" title="All 4 branches missed.">                if (inputField.getText() == null || inputField.getText().trim().isEmpty()) {</span>
+<span class="nc" id="L87">                    resultLabel.setText(message(&quot;enterValue&quot;));</span>
+<span class="nc" id="L88">                    return;</span>
                 }
 
-<span class="nc" id="L84">                double temperature = Double.parseDouble(inputField.getText().trim());</span>
-<span class="nc" id="L85">                TemperatureUnit from = fromUnit.getValue();</span>
-<span class="nc" id="L86">                TemperatureUnit to = toUnit.getValue();</span>
+<span class="nc" id="L91">                double temperature = Double.parseDouble(inputField.getText().trim());</span>
+<span class="nc" id="L92">                TemperatureUnit from = fromUnit.getValue();</span>
+<span class="nc" id="L93">                TemperatureUnit to = toUnit.getValue();</span>
 
-<span class="nc bnc" id="L88" title="All 4 branches missed.">                if (from == null || to == null) {</span>
-<span class="nc" id="L89">                    resultLabel.setText(&quot;Please select both units.&quot;);</span>
-<span class="nc" id="L90">                    return;</span>
+<span class="nc bnc" id="L95" title="All 4 branches missed.">                if (from == null || to == null) {</span>
+<span class="nc" id="L96">                    resultLabel.setText(message(&quot;selectUnits&quot;));</span>
+<span class="nc" id="L97">                    return;</span>
                 }
 
-<span class="nc" id="L93">                double result = convertTemperature(</span>
+<span class="nc" id="L100">                double result = convertTemperature(</span>
                         temperature,
-<span class="nc" id="L95">                        from.getName(),</span>
-<span class="nc" id="L96">                        to.getName()</span>
+<span class="nc" id="L102">                        from.getName(),</span>
+<span class="nc" id="L103">                        to.getName()</span>
                 );
 
-<span class="nc" id="L99">                resultLabel.setText(</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">                        String.format(&quot;Result: %.2f %s&quot;, result, to.getSymbol() != null ? to.getSymbol() : &quot;&quot;)</span>
+<span class="nc" id="L106">                resultLabel.setText(</span>
+<span class="nc" id="L107">                        String.format(message(&quot;resultFormat&quot;), result,</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                                to.getSymbol() != null ? to.getSymbol() : &quot;&quot;)</span>
                 );
 
                 // Save conversion record
-<span class="nc" id="L104">                TempRecord record = new TempRecord(</span>
+<span class="nc" id="L112">                TempRecord record = new TempRecord(</span>
                         temperature,
                         result,
-<span class="nc" id="L107">                        from.getId(),</span>
-<span class="nc" id="L108">                        to.getId()</span>
+<span class="nc" id="L115">                        from.getId(),</span>
+<span class="nc" id="L116">                        to.getId()</span>
                 );
                 try {
-<span class="nc" id="L111">                    recordDAO.saveRecord(record);</span>
-<span class="nc" id="L112">                } catch (IllegalStateException exception) {</span>
-<span class="nc" id="L113">                    resultLabel.setText(resultLabel.getText() + &quot; (not saved)&quot;);</span>
-<span class="nc" id="L114">                }</span>
+<span class="nc" id="L119">                    recordDAO.saveRecord(record);</span>
+<span class="nc" id="L120">                } catch (IllegalStateException exception) {</span>
+<span class="nc" id="L121">                    resultLabel.setText(resultLabel.getText() + &quot; &quot; + message(&quot;notSaved&quot;));</span>
+<span class="nc" id="L122">                }</span>
 
-<span class="nc" id="L116">            } catch (NumberFormatException e) {</span>
-<span class="nc" id="L117">                resultLabel.setText(&quot;Please enter a valid number.&quot;);</span>
-<span class="nc" id="L118">            } catch (Exception e) {</span>
-<span class="nc" id="L119">                resultLabel.setText(&quot;Error occurred during conversion.&quot;);</span>
-<span class="nc" id="L120">                e.printStackTrace();</span>
-<span class="nc" id="L121">            }</span>
-<span class="nc" id="L122">        });</span>
+<span class="nc" id="L124">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L125">                resultLabel.setText(message(&quot;invalidNumber&quot;));</span>
+<span class="nc" id="L126">            } catch (Exception e) {</span>
+<span class="nc" id="L127">                resultLabel.setText(message(&quot;conversionError&quot;));</span>
+<span class="nc" id="L128">                e.printStackTrace();</span>
+<span class="nc" id="L129">            }</span>
+<span class="nc" id="L130">        });</span>
 
         // Layout
-<span class="nc" id="L125">        VBox layout = new VBox(10);</span>
-<span class="nc" id="L126">        layout.setPadding(new Insets(20));</span>
-<span class="nc" id="L127">        layout.getChildren().addAll(</span>
+<span class="nc" id="L133">        VBox layout = new VBox(10);</span>
+<span class="nc" id="L134">        layout.setPadding(new Insets(20));</span>
+<span class="nc" id="L135">        layout.getChildren().addAll(</span>
                 title,
                 inputLabel,
                 inputField,
@@ -136,76 +144,115 @@ import java.util.List;
                 resultLabel
         );
 
-<span class="nc" id="L139">        Scene scene = new Scene(layout, 400, 450);</span>
-<span class="nc" id="L140">        stage.setTitle(&quot;Temperature Converter&quot;);</span>
-<span class="nc" id="L141">        stage.setScene(scene);</span>
-<span class="nc" id="L142">        stage.show();</span>
-<span class="nc" id="L143">    }</span>
+<span class="nc" id="L147">        Scene scene = new Scene(layout, 400, 450);</span>
+<span class="nc" id="L148">        stage.setTitle(&quot;Temperature Converter&quot;);</span>
+<span class="nc" id="L149">        stage.setScene(scene);</span>
+<span class="nc" id="L150">        stage.show();</span>
+<span class="nc" id="L151">    }</span>
 
     /**
      * Formats how TemperatureUnit objects are displayed in the ComboBox dropdown and selected value.
      */
     private void configureComboBox(ComboBox&lt;TemperatureUnit&gt; comboBox) {
-<span class="nc" id="L149">        StringConverter&lt;TemperatureUnit&gt; converter = new StringConverter&lt;&gt;() {</span>
+<span class="nc" id="L157">        StringConverter&lt;TemperatureUnit&gt; converter = new StringConverter&lt;&gt;() {</span>
             @Override
             public String toString(TemperatureUnit unit) {
-<span class="nc bnc" id="L152" title="All 2 branches missed.">                if (unit == null) return &quot;&quot;;</span>
-<span class="nc bnc" id="L153" title="All 4 branches missed.">                return unit.getSymbol() != null &amp;&amp; !unit.getSymbol().isEmpty()</span>
-<span class="nc" id="L154">                        ? String.format(&quot;%s (%s)&quot;, unit.getName(), unit.getSymbol())</span>
-<span class="nc" id="L155">                        : unit.getName();</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">                if (unit == null) return &quot;&quot;;</span>
+<span class="nc bnc" id="L161" title="All 4 branches missed.">                return unit.getSymbol() != null &amp;&amp; !unit.getSymbol().isEmpty()</span>
+<span class="nc" id="L162">                        ? String.format(&quot;%s (%s)&quot;, unit.getName(), unit.getSymbol())</span>
+<span class="nc" id="L163">                        : unit.getName();</span>
             }
 
             @Override
             public TemperatureUnit fromString(String string) {
-<span class="nc" id="L160">                return null; // Not needed for read-only ComboBoxes</span>
+<span class="nc" id="L168">                return null; // Not needed for read-only ComboBoxes</span>
             }
         };
 
-<span class="nc" id="L164">        comboBox.setConverter(converter);</span>
-<span class="nc" id="L165">        comboBox.setCellFactory(cell -&gt; new ListCell&lt;&gt;() {</span>
+<span class="nc" id="L172">        comboBox.setConverter(converter);</span>
+<span class="nc" id="L173">        comboBox.setCellFactory(cell -&gt; new ListCell&lt;&gt;() {</span>
             @Override
             protected void updateItem(TemperatureUnit item, boolean empty) {
-<span class="nc" id="L168">                super.updateItem(item, empty);</span>
-<span class="nc bnc" id="L169" title="All 4 branches missed.">                if (empty || item == null) {</span>
-<span class="nc" id="L170">                    setText(null);</span>
+<span class="nc" id="L176">                super.updateItem(item, empty);</span>
+<span class="nc bnc" id="L177" title="All 4 branches missed.">                if (empty || item == null) {</span>
+<span class="nc" id="L178">                    setText(null);</span>
                 } else {
-<span class="nc" id="L172">                    setText(converter.toString(item));</span>
+<span class="nc" id="L180">                    setText(converter.toString(item));</span>
                 }
-<span class="nc" id="L174">            }</span>
+<span class="nc" id="L182">            }</span>
         });
-<span class="nc" id="L176">    }</span>
+<span class="nc" id="L184">    }</span>
 
     private double convertTemperature(double temperature, String from, String to) {
-<span class="nc bnc" id="L179" title="All 4 branches missed.">        if (from == null || to == null) return temperature;</span>
+<span class="nc bnc" id="L187" title="All 4 branches missed.">        if (from == null || to == null) return temperature;</span>
 
-<span class="nc" id="L181">        String fromLower = from.trim().toLowerCase();</span>
-<span class="nc" id="L182">        String toLower = to.trim().toLowerCase();</span>
+<span class="nc" id="L189">        String fromLower = from.trim().toLowerCase();</span>
+<span class="nc" id="L190">        String toLower = to.trim().toLowerCase();</span>
 
-<span class="nc bnc" id="L184" title="All 2 branches missed.">        if (fromLower.equals(toLower)) {</span>
-<span class="nc" id="L185">            return temperature;</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">        if (fromLower.equals(toLower)) {</span>
+<span class="nc" id="L193">            return temperature;</span>
         }
 
-<span class="nc bnc" id="L188" title="All 4 branches missed.">        if (fromLower.equals(&quot;celsius&quot;) &amp;&amp; toLower.equals(&quot;fahrenheit&quot;)) {</span>
-<span class="nc" id="L189">            return converter.celsiusToFahrenheit(temperature);</span>
-<span class="nc bnc" id="L190" title="All 4 branches missed.">        } else if (fromLower.equals(&quot;fahrenheit&quot;) &amp;&amp; toLower.equals(&quot;celsius&quot;)) {</span>
-<span class="nc" id="L191">            return converter.fahrenheitToCelsius(temperature);</span>
-<span class="nc bnc" id="L192" title="All 4 branches missed.">        } else if (fromLower.equals(&quot;kelvin&quot;) &amp;&amp; toLower.equals(&quot;celsius&quot;)) {</span>
-<span class="nc" id="L193">            return converter.kelvinToCelsius(temperature);</span>
-<span class="nc bnc" id="L194" title="All 4 branches missed.">        } else if (fromLower.equals(&quot;celsius&quot;) &amp;&amp; toLower.equals(&quot;kelvin&quot;)) {</span>
-<span class="nc" id="L195">            return temperature + 273.15;</span>
-<span class="nc bnc" id="L196" title="All 4 branches missed.">        } else if (fromLower.equals(&quot;fahrenheit&quot;) &amp;&amp; toLower.equals(&quot;kelvin&quot;)) {</span>
-<span class="nc" id="L197">            double celsius = converter.fahrenheitToCelsius(temperature);</span>
-<span class="nc" id="L198">            return celsius + 273.15;</span>
-<span class="nc bnc" id="L199" title="All 4 branches missed.">        } else if (fromLower.equals(&quot;kelvin&quot;) &amp;&amp; toLower.equals(&quot;fahrenheit&quot;)) {</span>
-<span class="nc" id="L200">            double celsius = converter.kelvinToCelsius(temperature);</span>
-<span class="nc" id="L201">            return converter.celsiusToFahrenheit(celsius);</span>
+<span class="nc bnc" id="L196" title="All 4 branches missed.">        if (fromLower.equals(&quot;celsius&quot;) &amp;&amp; toLower.equals(&quot;fahrenheit&quot;)) {</span>
+<span class="nc" id="L197">            return converter.celsiusToFahrenheit(temperature);</span>
+<span class="nc bnc" id="L198" title="All 4 branches missed.">        } else if (fromLower.equals(&quot;fahrenheit&quot;) &amp;&amp; toLower.equals(&quot;celsius&quot;)) {</span>
+<span class="nc" id="L199">            return converter.fahrenheitToCelsius(temperature);</span>
+<span class="nc bnc" id="L200" title="All 4 branches missed.">        } else if (fromLower.equals(&quot;kelvin&quot;) &amp;&amp; toLower.equals(&quot;celsius&quot;)) {</span>
+<span class="nc" id="L201">            return converter.kelvinToCelsius(temperature);</span>
+<span class="nc bnc" id="L202" title="All 4 branches missed.">        } else if (fromLower.equals(&quot;celsius&quot;) &amp;&amp; toLower.equals(&quot;kelvin&quot;)) {</span>
+<span class="nc" id="L203">            return temperature + 273.15;</span>
+<span class="nc bnc" id="L204" title="All 4 branches missed.">        } else if (fromLower.equals(&quot;fahrenheit&quot;) &amp;&amp; toLower.equals(&quot;kelvin&quot;)) {</span>
+<span class="nc" id="L205">            double celsius = converter.fahrenheitToCelsius(temperature);</span>
+<span class="nc" id="L206">            return celsius + 273.15;</span>
+<span class="nc bnc" id="L207" title="All 4 branches missed.">        } else if (fromLower.equals(&quot;kelvin&quot;) &amp;&amp; toLower.equals(&quot;fahrenheit&quot;)) {</span>
+<span class="nc" id="L208">            double celsius = converter.kelvinToCelsius(temperature);</span>
+<span class="nc" id="L209">            return converter.celsiusToFahrenheit(celsius);</span>
         }
 
-<span class="nc" id="L204">        return temperature;</span>
+<span class="nc" id="L212">        return temperature;</span>
     }
 
     public static void main(String[] args) {
-<span class="nc" id="L208">        launch(args);</span>
-<span class="nc" id="L209">    }</span>
+<span class="nc" id="L216">        messages = ResourceBundle.getBundle(BUNDLE_NAME, chooseLocale(args));</span>
+<span class="nc" id="L217">        launch(args);</span>
+<span class="nc" id="L218">    }</span>
+
+    private static String message(String key) {
+<span class="nc" id="L221">        return messages.getString(key);</span>
+    }
+
+    private static Locale chooseLocale(String[] args) {
+<span class="nc bnc" id="L225" title="All 2 branches missed.">        for (String argument : args) {</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">            if (argument.startsWith(&quot;--locale=&quot;)) {</span>
+<span class="nc" id="L227">                return localeFromTag(argument.substring(&quot;--locale=&quot;.length()));</span>
+            }
+        }
+
+<span class="nc" id="L231">        System.out.println(&quot;Select language / Valitse kieli / Välj språk / 言語を選択:&quot;);</span>
+<span class="nc" id="L232">        System.out.println(&quot;1. English&quot;);</span>
+<span class="nc" id="L233">        System.out.println(&quot;2. Finnish&quot;);</span>
+<span class="nc" id="L234">        System.out.println(&quot;3. Swedish&quot;);</span>
+<span class="nc" id="L235">        System.out.println(&quot;4. Japanese&quot;);</span>
+<span class="nc" id="L236">        System.out.print(&quot;Choice (default 1): &quot;);</span>
+
+        try {
+<span class="nc" id="L239">            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));</span>
+<span class="nc" id="L240">            String choice = reader.readLine();</span>
+<span class="nc bnc" id="L241" title="All 6 branches missed.">            return switch (choice == null ? &quot;&quot; : choice.trim()) {</span>
+<span class="nc" id="L242">                case &quot;2&quot; -&gt; new Locale(&quot;fi&quot;, &quot;FI&quot;);</span>
+<span class="nc" id="L243">                case &quot;3&quot; -&gt; new Locale(&quot;sv&quot;, &quot;SE&quot;);</span>
+<span class="nc" id="L244">                case &quot;4&quot; -&gt; Locale.JAPAN;</span>
+<span class="nc" id="L245">                default -&gt; Locale.US;</span>
+            };
+<span class="nc" id="L247">        } catch (IOException exception) {</span>
+<span class="nc" id="L248">            System.err.println(&quot;Unable to read language choice; using English.&quot;);</span>
+<span class="nc" id="L249">            return Locale.US;</span>
+        }
+    }
+
+    private static Locale localeFromTag(String tag) {
+<span class="nc" id="L254">        Locale locale = Locale.forLanguageTag(tag.replace('_', '-'));</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">        return locale.getLanguage().isEmpty() ? Locale.US : locale;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

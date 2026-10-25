@@ -12,10 +12,17 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class Main extends Application {
 
+    private static final String BUNDLE_NAME = "MessagesBundle";
+    private static ResourceBundle messages = ResourceBundle.getBundle(BUNDLE_NAME, Locale.US);
     private final TemperatureConverter converter = new TemperatureConverter();
     private final TemperatureUnitDAO unitDAO = new TemperatureUnitDAO();
     private final TempRecordDAO recordDAO = new TempRecordDAO();
@@ -23,20 +30,20 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
 
-        Label title = new Label("Temperature Converter");
+        Label title = new Label(message("title"));
 
         // Temperature input
-        Label inputLabel = new Label("Temperature:");
+        Label inputLabel = new Label(message("temperature"));
         TextField inputField = new TextField();
-        inputField.setPromptText("Enter temperature");
+        inputField.setPromptText(message("enterTemperature"));
 
         // From unit
-        Label fromLabel = new Label("From:");
+        Label fromLabel = new Label(message("from"));
         ComboBox<TemperatureUnit> fromUnit = new ComboBox<>();
         fromUnit.setPrefWidth(250);
 
         // To unit
-        Label toLabel = new Label("To:");
+        Label toLabel = new Label(message("to"));
         ComboBox<TemperatureUnit> toUnit = new ComboBox<>();
         toUnit.setPrefWidth(250);
 
@@ -66,18 +73,18 @@ public class Main extends Application {
         }
 
         // Convert button
-        Button convertButton = new Button("Convert");
+        Button convertButton = new Button(message("convert"));
 
         // Result
         Label resultLabel = new Label(databaseAvailable
-                ? "Result:"
-                : "Database unavailable; conversions are not being saved.");
+                ? message("result")
+                : message("databaseUnavailable"));
 
         // Button action
         convertButton.setOnAction(event -> {
             try {
                 if (inputField.getText() == null || inputField.getText().trim().isEmpty()) {
-                    resultLabel.setText("Please enter a temperature value.");
+                    resultLabel.setText(message("enterValue"));
                     return;
                 }
 
@@ -86,7 +93,7 @@ public class Main extends Application {
                 TemperatureUnit to = toUnit.getValue();
 
                 if (from == null || to == null) {
-                    resultLabel.setText("Please select both units.");
+                    resultLabel.setText(message("selectUnits"));
                     return;
                 }
 
@@ -97,7 +104,8 @@ public class Main extends Application {
                 );
 
                 resultLabel.setText(
-                        String.format("Result: %.2f %s", result, to.getSymbol() != null ? to.getSymbol() : "")
+                        String.format(message("resultFormat"), result,
+                                to.getSymbol() != null ? to.getSymbol() : "")
                 );
 
                 // Save conversion record
@@ -110,13 +118,13 @@ public class Main extends Application {
                 try {
                     recordDAO.saveRecord(record);
                 } catch (IllegalStateException exception) {
-                    resultLabel.setText(resultLabel.getText() + " (not saved)");
+                    resultLabel.setText(resultLabel.getText() + " " + message("notSaved"));
                 }
 
             } catch (NumberFormatException e) {
-                resultLabel.setText("Please enter a valid number.");
+                resultLabel.setText(message("invalidNumber"));
             } catch (Exception e) {
-                resultLabel.setText("Error occurred during conversion.");
+                resultLabel.setText(message("conversionError"));
                 e.printStackTrace();
             }
         });
@@ -205,6 +213,45 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        messages = ResourceBundle.getBundle(BUNDLE_NAME, chooseLocale(args));
         launch(args);
+    }
+
+    private static String message(String key) {
+        return messages.getString(key);
+    }
+
+    private static Locale chooseLocale(String[] args) {
+        for (String argument : args) {
+            if (argument.startsWith("--locale=")) {
+                return localeFromTag(argument.substring("--locale=".length()));
+            }
+        }
+
+        System.out.println("Select language / Valitse kieli / Välj språk / 言語を選択:");
+        System.out.println("1. English");
+        System.out.println("2. Finnish");
+        System.out.println("3. Swedish");
+        System.out.println("4. Japanese");
+        System.out.print("Choice (default 1): ");
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            String choice = reader.readLine();
+            return switch (choice == null ? "" : choice.trim()) {
+                case "2" -> new Locale("fi", "FI");
+                case "3" -> new Locale("sv", "SE");
+                case "4" -> Locale.JAPAN;
+                default -> Locale.US;
+            };
+        } catch (IOException exception) {
+            System.err.println("Unable to read language choice; using English.");
+            return Locale.US;
+        }
+    }
+
+    private static Locale localeFromTag(String tag) {
+        Locale locale = Locale.forLanguageTag(tag.replace('_', '-'));
+        return locale.getLanguage().isEmpty() ? Locale.US : locale;
     }
 }
