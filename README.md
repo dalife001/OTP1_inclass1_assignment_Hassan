@@ -14,9 +14,9 @@ A JavaFX desktop application that converts Celsius, Fahrenheit, and Kelvin value
 
 ## 3. Design Approach and Implementation Method
 
-`Main` provides the JavaFX form with an input field, source/target unit selectors, conversion button, and result messages. `TemperatureConverter` contains the conversion logic; `TemperatureUnit` and `TempRecord` hold data.
+`Main.fxml` provides the JavaFX form with a language selector, input field, source/target unit selectors, conversion button, and result messages. `TemperatureController` reloads the FXML view with a standard `ResourceBundle` when the language changes. Supported locales are English, Finnish, Swedish, Japanese, and Arabic.
 
-`TemperatureUnitDAO` creates and loads the default units, while `TempRecordDAO` saves conversions in PostgreSQL. Database settings use `TEMPERATURE_DB_URL`, `TEMPERATURE_DB_USER`, and `TEMPERATURE_DB_PASSWORD`. If the database is unavailable, the application uses default units and reports that results are not saved.
+`TemperatureUnitDAO` creates and loads the default units, while `TempRecordDAO` saves conversions in PostgreSQL. `DatabaseSchema` also creates the related `measurement_units` and `travel_measurements` tables for distance, duration, and speed tracking. Database settings use `TEMPERATURE_DB_URL`, `TEMPERATURE_DB_USER`, and `TEMPERATURE_DB_PASSWORD`. If the database is unavailable, the application uses default units and reports that results are not saved.
 
 ## 4. Testing and Quality Assurance Steps
 
@@ -53,7 +53,22 @@ Run tests, the GUI, or a package with:
 ```bash
 mvn test
 mvn javafx:run
-mvn clean package
+mvn clean verify
 ```
 
-The application can start without database credentials, but conversions will not be persisted. Docker support is provided by the included `Dockerfile`.
+The application can start without database credentials, but conversions will not be persisted. Docker support is provided by the included `Dockerfile`; it starts Xvfb for a headless GUI display:
+
+```bash
+docker build -t temperature-converter .
+docker run --rm -e TEMPERATURE_DB_URL -e TEMPERATURE_DB_USER -e TEMPERATURE_DB_PASSWORD temperature-converter
+```
+
+Jenkins uses the `dockerhub-credentials` username/password credential, builds and tests with Maven, publishes JaCoCo results, and pushes both a build-number tag and `latest` to Docker Hub. The GitHub Actions workflow performs the build/test/coverage job and pushes Docker images from `main`.
+
+For Minikube, replace `YOUR_DOCKERHUB_USERNAME` in `temperature-converter.yaml`, then run:
+
+```bash
+minikube start
+kubectl apply -f temperature-converter.yaml
+kubectl get pods,services
+```

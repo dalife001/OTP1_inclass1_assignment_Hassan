@@ -37,4 +37,18 @@ class TemperatureConverterTest {
         assertEquals(0.0, converter.kelvinToCelsius(273.15), 0.001);
         assertEquals(100.0, converter.kelvinToCelsius(373.15), 0.001);
     }
+
+    @Test
+    void convertsBetweenEverySupportedUnit() {
+        assertEquals(273.15, converter.convert(0, "Celsius", "Kelvin"), 0.001);
+        assertEquals(32.0, converter.convert(273.15, "Kelvin", "Fahrenheit"), 0.001);
+        assertEquals(100.0, converter.convert(212, "Fahrenheit", "Celsius"), 0.001);
+        assertEquals(12.5, converter.convert(12.5, "Celsius", "Celsius"), 0.001);
+    }
+
+    @Test
+    void rejectsUnknownUnits() {
+        assertThrows(IllegalArgumentException.class,
+                () -> converter.convert(10, "Rankine", "Celsius"));
+    }
 }

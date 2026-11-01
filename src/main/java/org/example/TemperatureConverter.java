@@ -1,6 +1,26 @@
 package org.example;
 public class TemperatureConverter {
 
+    public double convert(double value, String from, String to) {
+        String source = from.trim().toLowerCase();
+        String target = to.trim().toLowerCase();
+        if (source.equals(target)) {
+            return value;
+        }
+        double celsius = switch (source) {
+            case "celsius" -> value;
+            case "fahrenheit" -> fahrenheitToCelsius(value);
+            case "kelvin" -> kelvinToCelsius(value);
+            default -> throw new IllegalArgumentException("Unsupported source unit: " + from);
+        };
+        return switch (target) {
+            case "celsius" -> celsius;
+            case "fahrenheit" -> celsiusToFahrenheit(celsius);
+            case "kelvin" -> celsius + 273.15;
+            default -> throw new IllegalArgumentException("Unsupported target unit: " + to);
+        };
+    }
+
     public double fahrenheitToCelsius(double fahrenheit) {
         return (fahrenheit - 32) * 5 / 9;
     }
