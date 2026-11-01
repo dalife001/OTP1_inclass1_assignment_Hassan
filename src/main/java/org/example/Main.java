@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class Main extends Application {
-    private static final String BUNDLE_NAME = "MessagesBundle";
+    private static final String BUNDLE_NAME = "messages";
     private Stage stage;
     private Locale locale = Locale.US;
 

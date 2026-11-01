@@ -65,10 +65,10 @@ docker run --rm -e TEMPERATURE_DB_URL -e TEMPERATURE_DB_USER -e TEMPERATURE_DB_P
 
 Jenkins uses the `dockerhub-credentials` username/password credential, builds and tests with Maven, publishes JaCoCo results, and pushes both a build-number tag and `latest` to Docker Hub. The GitHub Actions workflow performs the build/test/coverage job and pushes Docker images from `main`.
 
-For Minikube, replace `YOUR_DOCKERHUB_USERNAME` in `temperature-converter.yaml`, then run:
+For Minikube, replace `YOUR_DOCKERHUB_USERNAME` in `app.yaml`, then run:
 
 ```bash
 minikube start
-kubectl apply -f temperature-converter.yaml
+kubectl apply -f app.yaml
 kubectl get pods,services
 ```

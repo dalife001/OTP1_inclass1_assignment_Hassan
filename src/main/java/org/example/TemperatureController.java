@@ -39,7 +39,7 @@ public class TemperatureController {
 
     @FXML
     private void initialize() {
-        messages = ResourceBundle.getBundle("MessagesBundle", application.getLocale());
+        messages = ResourceBundle.getBundle("messages", application.getLocale());
         configureUnits();
         configureLanguages();
         resultLabel.setText(databaseUnavailable

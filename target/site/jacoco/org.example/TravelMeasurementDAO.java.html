@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TravelMeasurementDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">OTP1_inclass1_assignment_Hassan</a> &gt; <a href="index.source.html" class="el_package">org.example</a> &gt; <span class="el_source">TravelMeasurementDAO.java</span></div><h1>TravelMeasurementDAO.java</h1><pre class="source lang-java linenums">package org.example;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+<span class="nc" id="L7">public class TravelMeasurementDAO {</span>
+    public void save(TravelMeasurement measurement) {
+<span class="nc" id="L9">        try (Connection connection = DBConnection.getConnection()) {</span>
+<span class="nc" id="L10">            DatabaseSchema.initialize(connection);</span>
+<span class="nc" id="L11">            try (PreparedStatement statement = connection.prepareStatement(&quot;&quot;&quot;</span>
+                    INSERT INTO travel_measurements
+                        (distance, duration_seconds, speed, unit_id)
+                    VALUES (?, ?, ?, ?)
+                    &quot;&quot;&quot;)) {
+<span class="nc" id="L16">                statement.setDouble(1, measurement.distance());</span>
+<span class="nc" id="L17">                statement.setDouble(2, measurement.durationSeconds());</span>
+<span class="nc" id="L18">                statement.setDouble(3, measurement.speed());</span>
+<span class="nc" id="L19">                statement.setInt(4, measurement.unitId());</span>
+<span class="nc" id="L20">                statement.executeUpdate();</span>
+            }
+<span class="nc" id="L22">        } catch (SQLException exception) {</span>
+<span class="nc" id="L23">            throw new IllegalStateException(&quot;Unable to save the travel measurement.&quot;, exception);</span>
+        }
+<span class="nc" id="L25">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

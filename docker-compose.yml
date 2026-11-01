@@ -1,6 +1,6 @@
 services:
-  temperature-converter:
-    image: temperature-converter:latest
+  app:
+    image: app:latest
     build:
       context: .
     environment:

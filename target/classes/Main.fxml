@@ -8,7 +8,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.TemperatureController"
-      spacing="12" alignment="TOP_LEFT">
+      spacing="12" alignment="TOP_LEFT"
+      style="-fx-font-family: 'Noto Sans CJK JP';">
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
