@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TemperatureController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">OTP1_inclass1_assignment_Hassan</a> &gt; <a href="index.source.html" class="el_package">org.example</a> &gt; <span class="el_source">TemperatureController.java</span></div><h1>TemperatureController.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">package org.example;</span>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TemperatureController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">OTP1_inclass1_assignment_Hassan</a> &gt; <a href="index.source.html" class="el_package">org.example</a> &gt; <span class="el_source">TemperatureController.java</span></div><h1>TemperatureController.java</h1><pre class="source lang-java linenums">package org.example;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ListCell;
 import javafx.util.StringConverter;
@@ -25,122 +26,147 @@ public class TemperatureController {
     @FXML private ComboBox&lt;LanguageOption&gt; languageComboBox;
     @FXML private Button convertButton;
     @FXML private Label resultLabel;
+    @FXML private ListView&lt;String&gt; historyList;
+    @FXML private javafx.scene.layout.VBox root;
 
     private final Main application;
-<span class="nc" id="L30">    private final TemperatureConverter converter = new TemperatureConverter();</span>
-<span class="nc" id="L31">    private final TemperatureUnitDAO unitDAO = new TemperatureUnitDAO();</span>
-<span class="nc" id="L32">    private final TempRecordDAO recordDAO = new TempRecordDAO();</span>
+<span class="nc" id="L33">    private final TemperatureConverter converter = new TemperatureConverter();</span>
+<span class="nc" id="L34">    private final TemperatureUnitDAO unitDAO = new TemperatureUnitDAO();</span>
+<span class="nc" id="L35">    private final TempRecordDAO recordDAO = new TempRecordDAO();</span>
     private ResourceBundle messages;
     private boolean databaseUnavailable;
 
-<span class="nc" id="L36">    public TemperatureController(Main application) {</span>
-<span class="nc" id="L37">        this.application = application;</span>
-<span class="nc" id="L38">    }</span>
+<span class="nc" id="L39">    public TemperatureController(Main application) {</span>
+<span class="nc" id="L40">        this.application = application;</span>
+<span class="nc" id="L41">    }</span>
 
     @FXML
     private void initialize() {
-<span class="nc" id="L42">        messages = ResourceBundle.getBundle(&quot;messages&quot;, application.getLocale());</span>
-<span class="nc" id="L43">        configureUnits();</span>
-<span class="nc" id="L44">        configureLanguages();</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">        resultLabel.setText(databaseUnavailable</span>
-<span class="nc" id="L46">                ? messages.getString(&quot;databaseUnavailable&quot;)</span>
-<span class="nc" id="L47">                : messages.getString(&quot;result&quot;));</span>
-<span class="nc" id="L48">        inputField.setPromptText(messages.getString(&quot;enterTemperature&quot;));</span>
-<span class="nc" id="L49">    }</span>
+<span class="nc" id="L45">        messages = ResourceBundle.getBundle(&quot;messages&quot;, application.getLocale());</span>
+<span class="nc" id="L46">        configureUnits();</span>
+<span class="nc" id="L47">        configureLanguages();</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        root.setNodeOrientation(application.getLocale().getLanguage().equals(&quot;ar&quot;)</span>
+<span class="nc" id="L49">                ? javafx.geometry.NodeOrientation.RIGHT_TO_LEFT</span>
+<span class="nc" id="L50">                : javafx.geometry.NodeOrientation.LEFT_TO_RIGHT);</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        resultLabel.setText(databaseUnavailable</span>
+<span class="nc" id="L52">                ? messages.getString(&quot;databaseUnavailable&quot;)</span>
+<span class="nc" id="L53">                : messages.getString(&quot;result&quot;));</span>
+<span class="nc" id="L54">        inputField.setPromptText(messages.getString(&quot;enterTemperature&quot;));</span>
+<span class="nc" id="L55">        loadHistory();</span>
+<span class="nc" id="L56">    }</span>
 
     private void configureUnits() {
         List&lt;TemperatureUnit&gt; units;
         try {
-<span class="nc" id="L54">            units = unitDAO.getAllUnits();</span>
-<span class="nc" id="L55">        } catch (IllegalStateException exception) {</span>
-<span class="nc" id="L56">            units = TemperatureUnitDAO.defaultUnitsForTests();</span>
-<span class="nc" id="L57">            databaseUnavailable = true;</span>
+<span class="nc" id="L61">            units = unitDAO.getAllUnits(application.getLocale());</span>
+<span class="nc" id="L62">        } catch (IllegalStateException exception) {</span>
+<span class="nc" id="L63">            units = TemperatureUnitDAO.defaultUnitsForLocale(application.getLocale());</span>
+<span class="nc" id="L64">            databaseUnavailable = true;</span>
+<span class="nc" id="L65">        }</span>
+<span class="nc" id="L66">        fromUnit.setItems(FXCollections.observableArrayList(units));</span>
+<span class="nc" id="L67">        toUnit.setItems(FXCollections.observableArrayList(units));</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (!units.isEmpty()) {</span>
+<span class="nc" id="L69">            fromUnit.setValue(units.get(0));</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">            toUnit.setValue(units.size() &gt; 1 ? units.get(1) : units.get(0));</span>
         }
-<span class="nc" id="L59">        fromUnit.setItems(FXCollections.observableArrayList(units));</span>
-<span class="nc" id="L60">        toUnit.setItems(FXCollections.observableArrayList(units));</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (!units.isEmpty()) {</span>
-<span class="nc" id="L62">            fromUnit.setValue(units.get(0));</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">            toUnit.setValue(units.size() &gt; 1 ? units.get(1) : units.get(0));</span>
-        }
-<span class="nc" id="L65">        StringConverter&lt;TemperatureUnit&gt; unitConverter = new StringConverter&lt;&gt;() {</span>
+<span class="nc" id="L72">        StringConverter&lt;TemperatureUnit&gt; unitConverter = new StringConverter&lt;&gt;() {</span>
             @Override
             public String toString(TemperatureUnit unit) {
-<span class="nc bnc" id="L68" title="All 2 branches missed.">                return unit == null ? &quot;&quot; : unit.getName() + &quot; (&quot; + unit.getSymbol() + &quot;)&quot;;</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">                return unit == null ? &quot;&quot; : unit.getName() + &quot; - &quot; + unit.getDescription()</span>
+<span class="nc" id="L76">                        + &quot; (&quot; + unit.getSymbol() + &quot;)&quot;;</span>
             }
 
             @Override
             public TemperatureUnit fromString(String value) {
-<span class="nc" id="L73">                return null;</span>
+<span class="nc" id="L81">                return null;</span>
             }
         };
-<span class="nc" id="L76">        configureUnitComboBox(fromUnit, unitConverter);</span>
-<span class="nc" id="L77">        configureUnitComboBox(toUnit, unitConverter);</span>
-<span class="nc" id="L78">    }</span>
+<span class="nc" id="L84">        configureUnitComboBox(fromUnit, unitConverter);</span>
+<span class="nc" id="L85">        configureUnitComboBox(toUnit, unitConverter);</span>
+<span class="nc" id="L86">    }</span>
 
     private void configureUnitComboBox(
             ComboBox&lt;TemperatureUnit&gt; comboBox, StringConverter&lt;TemperatureUnit&gt; converter) {
-<span class="nc" id="L82">        comboBox.setConverter(converter);</span>
-<span class="nc" id="L83">        comboBox.setCellFactory(view -&gt; new ListCell&lt;&gt;() {</span>
+<span class="nc" id="L90">        comboBox.setConverter(converter);</span>
+<span class="nc" id="L91">        comboBox.setCellFactory(view -&gt; new ListCell&lt;&gt;() {</span>
             @Override
             protected void updateItem(TemperatureUnit item, boolean empty) {
-<span class="nc" id="L86">                super.updateItem(item, empty);</span>
-<span class="nc bnc" id="L87" title="All 4 branches missed.">                setText(empty || item == null ? null : converter.toString(item));</span>
-<span class="nc" id="L88">            }</span>
-<span class="nc" id="L89">        });</span>
-<span class="nc" id="L90">    }</span>
+<span class="nc" id="L94">                super.updateItem(item, empty);</span>
+<span class="nc bnc" id="L95" title="All 4 branches missed.">                setText(empty || item == null ? null : converter.toString(item));</span>
+<span class="nc" id="L96">            }</span>
+        });
+<span class="nc" id="L98">    }</span>
 
     private void configureLanguages() {
-<span class="nc" id="L93">        languageComboBox.setItems(FXCollections.observableArrayList(</span>
-<span class="nc" id="L94">                new LanguageOption(&quot;English&quot;, Locale.US),</span>
-<span class="nc" id="L95">                new LanguageOption(&quot;Suomi&quot;, new Locale(&quot;fi&quot;, &quot;FI&quot;)),</span>
-<span class="nc" id="L96">                new LanguageOption(&quot;Svenska&quot;, new Locale(&quot;sv&quot;, &quot;SE&quot;)),</span>
-<span class="nc" id="L97">                new LanguageOption(&quot;日本語&quot;, Locale.JAPAN),</span>
-<span class="nc" id="L98">                new LanguageOption(&quot;العربية&quot;, new Locale(&quot;ar&quot;, &quot;SA&quot;))));</span>
-<span class="nc" id="L99">        languageComboBox.setValue(languageComboBox.getItems().stream()</span>
-<span class="nc" id="L100">                .filter(option -&gt; option.locale().equals(application.getLocale()))</span>
-<span class="nc" id="L101">                .findFirst()</span>
-<span class="nc" id="L102">                .orElse(languageComboBox.getItems().get(0)));</span>
-<span class="nc" id="L103">        languageComboBox.setOnAction(event -&gt; {</span>
-<span class="nc" id="L104">            LanguageOption selected = languageComboBox.getValue();</span>
-<span class="nc bnc" id="L105" title="All 4 branches missed.">            if (selected != null &amp;&amp; !selected.locale().equals(application.getLocale())) {</span>
-<span class="nc" id="L106">                application.showLocale(selected.locale());</span>
+<span class="nc" id="L101">        languageComboBox.setItems(FXCollections.observableArrayList(</span>
+                new LanguageOption(&quot;English&quot;, Locale.US),
+                new LanguageOption(&quot;Suomi&quot;, new Locale(&quot;fi&quot;, &quot;FI&quot;)),
+                new LanguageOption(&quot;Svenska&quot;, new Locale(&quot;sv&quot;, &quot;SE&quot;)),
+                new LanguageOption(&quot;日本語&quot;, Locale.JAPAN),
+                new LanguageOption(&quot;العربية&quot;, new Locale(&quot;ar&quot;, &quot;SA&quot;))));
+<span class="nc" id="L107">        languageComboBox.setValue(languageComboBox.getItems().stream()</span>
+<span class="nc" id="L108">                .filter(option -&gt; option.locale().equals(application.getLocale()))</span>
+<span class="nc" id="L109">                .findFirst()</span>
+<span class="nc" id="L110">                .orElse(languageComboBox.getItems().get(0)));</span>
+<span class="nc" id="L111">        languageComboBox.setOnAction(event -&gt; {</span>
+<span class="nc" id="L112">            LanguageOption selected = languageComboBox.getValue();</span>
+<span class="nc bnc" id="L113" title="All 4 branches missed.">            if (selected != null &amp;&amp; !selected.locale().equals(application.getLocale())) {</span>
+<span class="nc" id="L114">                application.showLocale(selected.locale());</span>
             }
-<span class="nc" id="L108">        });</span>
-<span class="nc" id="L109">    }</span>
+<span class="nc" id="L116">        });</span>
+<span class="nc" id="L117">    }</span>
 
     @FXML
     private void convert() {
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        String value = inputField.getText() == null ? &quot;&quot; : inputField.getText().trim();</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (value.isEmpty()) {</span>
-<span class="nc" id="L115">            resultLabel.setText(messages.getString(&quot;enterValue&quot;));</span>
-<span class="nc" id="L116">            return;</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        String value = inputField.getText() == null ? &quot;&quot; : inputField.getText().trim();</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (value.isEmpty()) {</span>
+<span class="nc" id="L123">            resultLabel.setText(messages.getString(&quot;enterValue&quot;));</span>
+<span class="nc" id="L124">            return;</span>
         }
-<span class="nc bnc" id="L118" title="All 4 branches missed.">        if (fromUnit.getValue() == null || toUnit.getValue() == null) {</span>
-<span class="nc" id="L119">            resultLabel.setText(messages.getString(&quot;selectUnits&quot;));</span>
-<span class="nc" id="L120">            return;</span>
+<span class="nc bnc" id="L126" title="All 4 branches missed.">        if (fromUnit.getValue() == null || toUnit.getValue() == null) {</span>
+<span class="nc" id="L127">            resultLabel.setText(messages.getString(&quot;selectUnits&quot;));</span>
+<span class="nc" id="L128">            return;</span>
         }
         try {
-<span class="nc" id="L123">            double input = Double.parseDouble(value);</span>
-<span class="nc" id="L124">            double output = converter.convert(input,</span>
-<span class="nc" id="L125">                    fromUnit.getValue().getName(), toUnit.getValue().getName());</span>
-<span class="nc" id="L126">            resultLabel.setText(String.format(application.getLocale(),</span>
-<span class="nc" id="L127">                    messages.getString(&quot;resultFormat&quot;), output, toUnit.getValue().getSymbol()));</span>
+<span class="nc" id="L131">            double input = Double.parseDouble(value);</span>
+<span class="nc" id="L132">            double output = converter.convert(input,</span>
+<span class="nc" id="L133">                    fromUnit.getValue().getUnitKey(), toUnit.getValue().getUnitKey());</span>
+<span class="nc" id="L134">            resultLabel.setText(String.format(application.getLocale(),</span>
+<span class="nc" id="L135">                    messages.getString(&quot;resultFormat&quot;), output, toUnit.getValue().getName(),</span>
+<span class="nc" id="L136">                    toUnit.getValue().getSymbol()));</span>
             try {
-<span class="nc" id="L129">                recordDAO.saveRecord(new TempRecord(input, output,</span>
-<span class="nc" id="L130">                        fromUnit.getValue().getId(), toUnit.getValue().getId()));</span>
-<span class="nc" id="L131">            } catch (IllegalStateException exception) {</span>
-<span class="nc" id="L132">                resultLabel.setText(resultLabel.getText() + &quot; &quot; + messages.getString(&quot;notSaved&quot;));</span>
-            }
-<span class="nc" id="L134">        } catch (NumberFormatException exception) {</span>
-<span class="nc" id="L135">            resultLabel.setText(messages.getString(&quot;invalidNumber&quot;));</span>
-        }
-<span class="nc" id="L137">    }</span>
+<span class="nc" id="L138">                recordDAO.saveRecord(new TempRecord(input, output,</span>
+<span class="nc" id="L139">                        fromUnit.getValue().getId(), toUnit.getValue().getId(),</span>
+<span class="nc" id="L140">                        application.getLocale().getLanguage()));</span>
+<span class="nc" id="L141">                loadHistory();</span>
+<span class="nc" id="L142">            } catch (IllegalStateException exception) {</span>
+<span class="nc" id="L143">                resultLabel.setText(resultLabel.getText() + &quot; &quot; + messages.getString(&quot;notSaved&quot;));</span>
+<span class="nc" id="L144">            }</span>
 
-    public record LanguageOption(String name, Locale locale) {
+<span class="nc" id="L146">        } catch (NumberFormatException exception) {</span>
+<span class="nc" id="L147">            resultLabel.setText(messages.getString(&quot;invalidNumber&quot;));</span>
+<span class="nc" id="L148">        }</span>
+<span class="nc" id="L149">    }</span>
+
+    private void loadHistory() {
+<span class="nc bnc" id="L152" title="All 4 branches missed.">        if (databaseUnavailable || historyList == null) {</span>
+<span class="nc" id="L153">            return;</span>
+        }
+        try {
+<span class="nc" id="L156">            historyList.getItems().setAll(recordDAO.findLatest(5).stream()</span>
+<span class="nc" id="L157">                    .map(record -&gt; String.format(application.getLocale(), &quot;%.2f -&gt; %.2f (%s)&quot;,</span>
+<span class="nc" id="L158">                            record.getInputValue(), record.getOutputValue(), record.getLanguage()))</span>
+<span class="nc" id="L159">                    .toList());</span>
+<span class="nc" id="L160">        } catch (IllegalStateException exception) {</span>
+<span class="nc" id="L161">            databaseUnavailable = true;</span>
+<span class="nc" id="L162">        }</span>
+<span class="nc" id="L163">    }</span>
+
+<span class="nc" id="L165">    public record LanguageOption(String name, Locale locale) {</span>
         @Override
         public String toString() {
-<span class="nc" id="L142">            return name;</span>
+<span class="nc" id="L168">            return name;</span>
         }
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

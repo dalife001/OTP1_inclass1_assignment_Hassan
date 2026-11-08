@@ -1,0 +1,5 @@
+org\example\TemperatureConverterTest.class
+org\example\TemperatureUnitDAOTest.class
+org\example\TemperatureUnitTest.class
+org\example\TempRecordTest.class
+org\example\TravelMeasurementTest.class

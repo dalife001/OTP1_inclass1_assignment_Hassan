@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ListCell;
 import javafx.util.StringConverter;
@@ -25,6 +26,8 @@ public class TemperatureController {
     @FXML private ComboBox<LanguageOption> languageComboBox;
     @FXML private Button convertButton;
     @FXML private Label resultLabel;
+    @FXML private ListView<String> historyList;
+    @FXML private javafx.scene.layout.VBox root;
 
     private final Main application;
     private final TemperatureConverter converter = new TemperatureConverter();
@@ -42,18 +45,22 @@ public class TemperatureController {
         messages = ResourceBundle.getBundle("messages", application.getLocale());
         configureUnits();
         configureLanguages();
+        root.setNodeOrientation(application.getLocale().getLanguage().equals("ar")
+                ? javafx.geometry.NodeOrientation.RIGHT_TO_LEFT
+                : javafx.geometry.NodeOrientation.LEFT_TO_RIGHT);
         resultLabel.setText(databaseUnavailable
                 ? messages.getString("databaseUnavailable")
                 : messages.getString("result"));
         inputField.setPromptText(messages.getString("enterTemperature"));
+        loadHistory();
     }
 
     private void configureUnits() {
         List<TemperatureUnit> units;
         try {
-            units = unitDAO.getAllUnits();
+            units = unitDAO.getAllUnits(application.getLocale());
         } catch (IllegalStateException exception) {
-            units = TemperatureUnitDAO.defaultUnitsForTests();
+            units = TemperatureUnitDAO.defaultUnitsForLocale(application.getLocale());
             databaseUnavailable = true;
         }
         fromUnit.setItems(FXCollections.observableArrayList(units));
@@ -65,7 +72,8 @@ public class TemperatureController {
         StringConverter<TemperatureUnit> unitConverter = new StringConverter<>() {
             @Override
             public String toString(TemperatureUnit unit) {
-                return unit == null ? "" : unit.getName() + " (" + unit.getSymbol() + ")";
+                return unit == null ? "" : unit.getName() + " - " + unit.getDescription()
+                        + " (" + unit.getSymbol() + ")";
             }
 
             @Override
@@ -122,17 +130,35 @@ public class TemperatureController {
         try {
             double input = Double.parseDouble(value);
             double output = converter.convert(input,
-                    fromUnit.getValue().getName(), toUnit.getValue().getName());
+                    fromUnit.getValue().getUnitKey(), toUnit.getValue().getUnitKey());
             resultLabel.setText(String.format(application.getLocale(),
-                    messages.getString("resultFormat"), output, toUnit.getValue().getSymbol()));
+                    messages.getString("resultFormat"), output, toUnit.getValue().getName(),
+                    toUnit.getValue().getSymbol()));
             try {
                 recordDAO.saveRecord(new TempRecord(input, output,
-                        fromUnit.getValue().getId(), toUnit.getValue().getId()));
+                        fromUnit.getValue().getId(), toUnit.getValue().getId(),
+                        application.getLocale().getLanguage()));
+                loadHistory();
             } catch (IllegalStateException exception) {
                 resultLabel.setText(resultLabel.getText() + " " + messages.getString("notSaved"));
             }
+
         } catch (NumberFormatException exception) {
             resultLabel.setText(messages.getString("invalidNumber"));
+        }
+    }
+
+    private void loadHistory() {
+        if (databaseUnavailable || historyList == null) {
+            return;
+        }
+        try {
+            historyList.getItems().setAll(recordDAO.findLatest(5).stream()
+                    .map(record -> String.format(application.getLocale(), "%.2f -> %.2f (%s)",
+                            record.getInputValue(), record.getOutputValue(), record.getLanguage()))
+                    .toList());
+        } catch (IllegalStateException exception) {
+            databaseUnavailable = true;
         }
     }
 

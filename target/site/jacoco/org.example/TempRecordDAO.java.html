@@ -2,31 +2,68 @@
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-<span class="nc" id="L7">public class TempRecordDAO {</span>
+<span class="nc" id="L11">public class TempRecordDAO {</span>
     public void saveRecord(TempRecord record) {
-<span class="nc" id="L9">        try (Connection connection = DBConnection.getConnection()) {</span>
-<span class="nc" id="L10">            createTable(connection);</span>
-<span class="nc" id="L11">            String sql = &quot;&quot;&quot;</span>
+<span class="nc" id="L13">        try (Connection connection = DBConnection.getConnection()) {</span>
+<span class="nc" id="L14">            createTable(connection);</span>
+<span class="nc" id="L15">            String sql = &quot;&quot;&quot;</span>
                     INSERT INTO temp_records
-                        (input_value, output_value, from_unit_id, to_unit_id)
-                    VALUES (?, ?, ?, ?)
+                        (input_value, output_value, from_unit_id, to_unit_id, language)
+                    VALUES (?, ?, ?, ?, ?)
                     &quot;&quot;&quot;;
-<span class="nc" id="L16">            try (PreparedStatement statement = connection.prepareStatement(sql)) {</span>
-<span class="nc" id="L17">                statement.setDouble(1, record.getInputValue());</span>
-<span class="nc" id="L18">                statement.setDouble(2, record.getOutputValue());</span>
-<span class="nc" id="L19">                statement.setInt(3, record.getFromUnitId());</span>
-<span class="nc" id="L20">                statement.setInt(4, record.getToUnitId());</span>
-<span class="nc" id="L21">                statement.executeUpdate();</span>
+<span class="nc" id="L20">            try (PreparedStatement statement = connection.prepareStatement(sql)) {</span>
+<span class="nc" id="L21">                statement.setDouble(1, record.getInputValue());</span>
+<span class="nc" id="L22">                statement.setDouble(2, record.getOutputValue());</span>
+<span class="nc" id="L23">                statement.setInt(3, record.getFromUnitId());</span>
+<span class="nc" id="L24">                statement.setInt(4, record.getToUnitId());</span>
+<span class="nc" id="L25">                statement.setString(5, record.getLanguage());</span>
+<span class="nc" id="L26">                statement.executeUpdate();</span>
             }
-<span class="nc" id="L23">        } catch (SQLException exception) {</span>
-<span class="nc" id="L24">            throw new IllegalStateException(&quot;Unable to save the conversion record.&quot;, exception);</span>
-        }
-<span class="nc" id="L26">    }</span>
+<span class="nc" id="L28">        } catch (SQLException exception) {</span>
+<span class="nc" id="L29">            throw new IllegalStateException(&quot;Unable to save the conversion record.&quot;, exception);</span>
+<span class="nc" id="L30">        }</span>
+<span class="nc" id="L31">    }</span>
+
+    public List&lt;TempRecord&gt; findLatest(int limit) {
+<span class="nc bnc" id="L34" title="All 2 branches missed.">            if (limit &lt;= 0) {</span>
+<span class="nc" id="L35">                throw new IllegalArgumentException(&quot;History limit must be positive.&quot;);</span>
+            }
+<span class="nc" id="L37">            try (Connection connection = DBConnection.getConnection()) {</span>
+<span class="nc" id="L38">                DatabaseSchema.initialize(connection);</span>
+<span class="nc" id="L39">                List&lt;TempRecord&gt; records = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L40">                String sql = &quot;&quot;&quot;</span>
+                        SELECT id, input_value, output_value, from_unit_id, to_unit_id, language, created_at
+                        FROM temp_records ORDER BY created_at DESC, id DESC LIMIT ?
+                        &quot;&quot;&quot;;
+<span class="nc" id="L44">                try (PreparedStatement statement = connection.prepareStatement(sql)) {</span>
+<span class="nc" id="L45">                    statement.setInt(1, limit);</span>
+<span class="nc" id="L46">                    try (ResultSet results = statement.executeQuery()) {</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">                        while (results.next()) {</span>
+<span class="nc" id="L48">                            records.add(new TempRecord(</span>
+<span class="nc" id="L49">                                    results.getInt(&quot;id&quot;),</span>
+<span class="nc" id="L50">                                    results.getDouble(&quot;input_value&quot;),</span>
+<span class="nc" id="L51">                                    results.getDouble(&quot;output_value&quot;),</span>
+<span class="nc" id="L52">                                    results.getInt(&quot;from_unit_id&quot;),</span>
+<span class="nc" id="L53">                                    results.getInt(&quot;to_unit_id&quot;),</span>
+<span class="nc" id="L54">                                    results.getString(&quot;language&quot;),</span>
+<span class="nc" id="L55">                                    results.getObject(&quot;created_at&quot;, LocalDateTime.class)));</span>
+                        }
+                    }
+                }
+<span class="nc" id="L59">                return records;</span>
+<span class="nc" id="L60">            } catch (SQLException exception) {</span>
+<span class="nc" id="L61">                throw new IllegalStateException(&quot;Unable to load conversion history.&quot;, exception);</span>
+            }
+    }
 
     private void createTable(Connection connection) throws SQLException {
-<span class="nc" id="L29">        DatabaseSchema.initialize(connection);</span>
-<span class="nc" id="L30">    }</span>
+<span class="nc" id="L66">        DatabaseSchema.initialize(connection);</span>
+<span class="nc" id="L67">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

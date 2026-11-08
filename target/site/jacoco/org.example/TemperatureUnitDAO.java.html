@@ -4,64 +4,143 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 <span class="nc" id="L11">public class TemperatureUnitDAO {</span>
-<span class="nc" id="L12">    private static final List&lt;TemperatureUnit&gt; DEFAULT_UNITS = List.of(</span>
-<span class="nc" id="L13">            new TemperatureUnit(1, &quot;Celsius&quot;, &quot;°C&quot;),</span>
-<span class="nc" id="L14">            new TemperatureUnit(2, &quot;Fahrenheit&quot;, &quot;°F&quot;),</span>
-<span class="nc" id="L15">            new TemperatureUnit(3, &quot;Kelvin&quot;, &quot;K&quot;)</span>
-<span class="nc" id="L16">    );</span>
+<span class="fc" id="L12">    private static final List&lt;TemperatureUnit&gt; DEFAULT_UNITS = List.of(</span>
+            new TemperatureUnit(1, &quot;celsius&quot;, &quot;Celsius&quot;, &quot;°C&quot;, &quot;Temperature scale&quot;),
+            new TemperatureUnit(2, &quot;fahrenheit&quot;, &quot;Fahrenheit&quot;, &quot;°F&quot;, &quot;Temperature scale&quot;),
+            new TemperatureUnit(3, &quot;kelvin&quot;, &quot;Kelvin&quot;, &quot;K&quot;, &quot;Absolute temperature scale&quot;)
+    );
 
     public List&lt;TemperatureUnit&gt; getAllUnits() {
-<span class="nc" id="L19">        try (Connection connection = DBConnection.getConnection()) {</span>
-<span class="nc" id="L20">            createTable(connection);</span>
-<span class="nc" id="L21">            seedDefaults(connection);</span>
-<span class="nc" id="L22">            return readUnits(connection);</span>
-<span class="nc" id="L23">        } catch (SQLException exception) {</span>
-<span class="nc" id="L24">            throw new IllegalStateException(</span>
-<span class="nc" id="L25">                    &quot;Unable to load temperature units. Configure TEMPERATURE_DB_URL, &quot;</span>
+<span class="nc" id="L19">        return getAllUnits(Locale.ENGLISH);</span>
+    }
+
+    public List&lt;TemperatureUnit&gt; getAllUnits(Locale locale) {
+<span class="nc" id="L23">        try (Connection connection = DBConnection.getConnection()) {</span>
+<span class="nc" id="L24">            createTable(connection);</span>
+<span class="nc" id="L25">            seedDefaults(connection);</span>
+<span class="nc bnc" id="L26" title="All 2 branches missed.">            return readUnits(connection, locale == null ? &quot;en&quot; : locale.getLanguage());</span>
+<span class="nc" id="L27">        } catch (SQLException exception) {</span>
+<span class="nc" id="L28">            throw new IllegalStateException(</span>
+                    &quot;Unable to load temperature units. Configure TEMPERATURE_DB_URL, &quot;
                             + &quot;TEMPERATURE_DB_USER, and TEMPERATURE_DB_PASSWORD.&quot;,
-<span class="nc" id="L27">                    exception);</span>
+                    exception);
         }
     }
 
     private void createTable(Connection connection) throws SQLException {
-<span class="nc" id="L32">        DatabaseSchema.initialize(connection);</span>
-<span class="nc" id="L33">    }</span>
+<span class="nc" id="L36">        DatabaseSchema.initialize(connection);</span>
+<span class="nc" id="L37">    }</span>
 
     private void seedDefaults(Connection connection) throws SQLException {
-<span class="nc" id="L36">        String sql = &quot;INSERT INTO temperature_units (name, symbol) VALUES (?, ?) &quot;</span>
-                + &quot;ON CONFLICT (name) DO NOTHING&quot;;
-<span class="nc" id="L38">        try (PreparedStatement statement = connection.prepareStatement(sql)) {</span>
-<span class="nc bnc" id="L39" title="All 2 branches missed.">            for (TemperatureUnit unit : DEFAULT_UNITS) {</span>
-<span class="nc" id="L40">                statement.setString(1, unit.getName());</span>
-<span class="nc" id="L41">                statement.setString(2, unit.getSymbol());</span>
-<span class="nc" id="L42">                statement.addBatch();</span>
-            }
-<span class="nc" id="L44">            statement.executeBatch();</span>
+<span class="nc" id="L40">        String sql = &quot;INSERT INTO units (unit_key, category, symbol) VALUES (?, 'temperature', ?) &quot;</span>
+                + &quot;ON CONFLICT (unit_key) DO NOTHING&quot;;
+<span class="nc" id="L42">        try (PreparedStatement statement = connection.prepareStatement(sql)) {</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            for (TemperatureUnit unit : DEFAULT_UNITS) {</span>
+<span class="nc" id="L44">                statement.setString(1, unit.getUnitKey());</span>
+<span class="nc" id="L45">                statement.setString(2, unit.getSymbol());</span>
+<span class="nc" id="L46">                statement.addBatch();</span>
+<span class="nc" id="L47">            }</span>
+<span class="nc" id="L48">            statement.executeBatch();</span>
         }
-<span class="nc" id="L46">    }</span>
+<span class="nc" id="L50">        String translationSql = &quot;&quot;&quot;</span>
+                INSERT INTO unit_translations (unit_id, lang, name, description)
+                SELECT id, ?, ?, ? FROM units WHERE unit_key = ?
+                ON CONFLICT (unit_id, lang) DO NOTHING
+                &quot;&quot;&quot;;
+<span class="nc" id="L55">        try (PreparedStatement statement = connection.prepareStatement(translationSql)) {</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            for (TemperatureUnit unit : DEFAULT_UNITS) {</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">                for (String language : List.of(&quot;en&quot;, &quot;fi&quot;, &quot;sv&quot;, &quot;ja&quot;, &quot;ar&quot;)) {</span>
+<span class="nc" id="L58">                    statement.setString(1, language);</span>
+<span class="nc" id="L59">                    statement.setString(2, localizedName(unit.getUnitKey(), language));</span>
+<span class="nc" id="L60">                    statement.setString(3, localizedDescription(unit.getUnitKey(), language));</span>
+<span class="nc" id="L61">                    statement.setString(4, unit.getUnitKey());</span>
+<span class="nc" id="L62">                    statement.addBatch();</span>
+<span class="nc" id="L63">                }</span>
+<span class="nc" id="L64">            }</span>
+<span class="nc" id="L65">            statement.executeBatch();</span>
+        }
+<span class="nc" id="L67">    }</span>
 
-    private List&lt;TemperatureUnit&gt; readUnits(Connection connection) throws SQLException {
-<span class="nc" id="L49">        List&lt;TemperatureUnit&gt; units = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L50">        try (Statement statement = connection.createStatement();</span>
-<span class="nc" id="L51">             ResultSet results = statement.executeQuery(</span>
-<span class="nc" id="L52">                     &quot;SELECT id, name, symbol FROM temperature_units ORDER BY id&quot;)) {</span>
-<span class="nc bnc" id="L53" title="All 2 branches missed.">            while (results.next()) {</span>
-<span class="nc" id="L54">                units.add(new TemperatureUnit(</span>
-<span class="nc" id="L55">                        results.getInt(&quot;id&quot;),</span>
-<span class="nc" id="L56">                        results.getString(&quot;name&quot;),</span>
-<span class="nc" id="L57">                        results.getString(&quot;symbol&quot;)));</span>
+    private List&lt;TemperatureUnit&gt; readUnits(Connection connection, String language) throws SQLException {
+<span class="nc" id="L70">        List&lt;TemperatureUnit&gt; units = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L71">        String sql = &quot;&quot;&quot;</span>
+                SELECT u.id, u.unit_key, u.symbol,
+                       COALESCE(t.name, fallback.name) AS name,
+                       COALESCE(t.description, fallback.description) AS description
+                FROM units u
+                JOIN unit_translations fallback ON fallback.unit_id = u.id AND fallback.lang = 'en'
+                LEFT JOIN unit_translations t ON t.unit_id = u.id AND t.lang = ?
+                WHERE u.category = 'temperature'
+                ORDER BY u.id
+                &quot;&quot;&quot;;
+<span class="nc" id="L81">        try (PreparedStatement statement = connection.prepareStatement(sql)) {</span>
+<span class="nc" id="L82">            statement.setString(1, language);</span>
+<span class="nc" id="L83">            try (ResultSet results = statement.executeQuery()) {</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            while (results.next()) {</span>
+<span class="nc" id="L85">                units.add(new TemperatureUnit(</span>
+<span class="nc" id="L86">                        results.getInt(&quot;id&quot;),</span>
+<span class="nc" id="L87">                        results.getString(&quot;unit_key&quot;),</span>
+<span class="nc" id="L88">                        results.getString(&quot;name&quot;),</span>
+<span class="nc" id="L89">                        results.getString(&quot;symbol&quot;),</span>
+<span class="nc" id="L90">                        results.getString(&quot;description&quot;)));</span>
+            }
             }
         }
-<span class="nc" id="L60">        return units;</span>
+<span class="nc" id="L94">        return units;</span>
+    }
+
+    static String localizedName(String key, String language) {
+<span class="pc bpc" id="L98" title="9 of 13 branches missed.">        return switch (language + &quot;:&quot; + key) {</span>
+<span class="nc" id="L99">            case &quot;fi:celsius&quot; -&gt; &quot;Celsius&quot;;</span>
+<span class="nc" id="L100">            case &quot;sv:celsius&quot; -&gt; &quot;Celsius&quot;;</span>
+<span class="fc" id="L101">            case &quot;ja:celsius&quot; -&gt; &quot;摂氏&quot;;</span>
+<span class="nc" id="L102">            case &quot;ar:celsius&quot; -&gt; &quot;مئوية&quot;;</span>
+<span class="nc" id="L103">            case &quot;fi:fahrenheit&quot; -&gt; &quot;Fahrenheit&quot;;</span>
+<span class="nc" id="L104">            case &quot;sv:fahrenheit&quot; -&gt; &quot;Fahrenheit&quot;;</span>
+<span class="fc" id="L105">            case &quot;ja:fahrenheit&quot; -&gt; &quot;華氏&quot;;</span>
+<span class="nc" id="L106">            case &quot;ar:fahrenheit&quot; -&gt; &quot;فهرنهايت&quot;;</span>
+<span class="nc" id="L107">            case &quot;fi:kelvin&quot; -&gt; &quot;Kelvin&quot;;</span>
+<span class="nc" id="L108">            case &quot;sv:kelvin&quot; -&gt; &quot;Kelvin&quot;;</span>
+<span class="fc" id="L109">            case &quot;ja:kelvin&quot; -&gt; &quot;ケルビン&quot;;</span>
+<span class="nc" id="L110">            case &quot;ar:kelvin&quot; -&gt; &quot;كلفن&quot;;</span>
+<span class="fc" id="L111">            default -&gt; DEFAULT_UNITS.stream().filter(unit -&gt; unit.getUnitKey().equals(key))</span>
+<span class="fc" id="L112">                    .findFirst().map(TemperatureUnit::getName).orElse(key);</span>
+        };
+    }
+
+    static String localizedDescription(String key, String language) {
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        if (&quot;ja&quot;.equals(language)) {</span>
+<span class="fc" id="L118">            return &quot;温度の単位&quot;;</span>
+        }
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        if (&quot;ar&quot;.equals(language)) {</span>
+<span class="nc" id="L121">            return &quot;وحدة قياس الحرارة&quot;;</span>
+        }
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">        if (&quot;fi&quot;.equals(language)) {</span>
+<span class="nc" id="L124">            return &quot;Lämpötilayksikkö&quot;;</span>
+        }
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (&quot;sv&quot;.equals(language)) {</span>
+<span class="nc" id="L127">            return &quot;Temperaturenhet&quot;;</span>
+        }
+<span class="fc" id="L129">        return DEFAULT_UNITS.stream().filter(unit -&gt; unit.getUnitKey().equals(key))</span>
+<span class="fc" id="L130">                .findFirst().map(TemperatureUnit::getDescription).orElse(&quot;Temperature unit&quot;);</span>
     }
 
     static List&lt;TemperatureUnit&gt; defaultUnitsForTests() {
-<span class="nc" id="L64">        return DEFAULT_UNITS;</span>
+<span class="nc" id="L134">        return DEFAULT_UNITS;</span>
+    }
+
+    static List&lt;TemperatureUnit&gt; defaultUnitsForLocale(Locale locale) {
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        String language = locale == null ? &quot;en&quot; : locale.getLanguage();</span>
+<span class="fc" id="L139">        return DEFAULT_UNITS.stream()</span>
+<span class="fc" id="L140">                .map(unit -&gt; new TemperatureUnit(unit.getId(), unit.getUnitKey(),</span>
+<span class="fc" id="L141">                        localizedName(unit.getUnitKey(), language), unit.getSymbol(),</span>
+<span class="fc" id="L142">                        localizedDescription(unit.getUnitKey(), language)))</span>
+<span class="fc" id="L143">                .toList();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

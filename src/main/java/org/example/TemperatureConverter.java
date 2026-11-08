@@ -1,9 +1,12 @@
 package org.example;
+
+import java.util.Locale;
+
 public class TemperatureConverter {
 
     public double convert(double value, String from, String to) {
-        String source = from.trim().toLowerCase();
-        String target = to.trim().toLowerCase();
+        String source = from.trim().toLowerCase(Locale.ROOT);
+        String target = to.trim().toLowerCase(Locale.ROOT);
         if (source.equals(target)) {
             return value;
         }
