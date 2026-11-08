@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bat 'mvn clean install'
+                bat 'mvn clean install' // sh for linux and ios
             }
         }
 
@@ -28,10 +28,7 @@ pipeline {
 
         stage('Publish Coverage Report') {
             steps {
-                // Use recordCoverage since you have the modern Coverage Plugin installed
-                recordCoverage(
-                    tools: [[parser: 'JACOCO', pattern: '**/target/site/jacoco/jacoco.xml']]
-                )
+                jacoco()
             }
         }
 
@@ -67,12 +64,6 @@ pipeline {
         always {
             junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
             archiveArtifacts artifacts: 'target/site/jacoco/**', allowEmptyArchive: true
-        }
-        success {
-            echo 'Build is Green! All tests and deployment steps succeeded.'
-        }
-        failure {
-            echo 'Build is Red! A test, build, or deployment step failed.'
         }
         cleanup {
             bat 'docker logout || exit 0'
